@@ -2,6 +2,9 @@
 $psHost = Get-Host
 $psWindow = $psHost.UI.RawUI
 $psWindow.WindowTitle = "Referenced PK3 lists update"
+$psWindowSize = New-Object System.Management.Automation.Host.Size(60,9)
+$psWindow.WindowSize = $psWindowSize
+$psWindow.BufferSize = $psWindowSize
 
 # Update function
 function ref_update ($type) {
