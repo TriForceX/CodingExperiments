@@ -5,7 +5,8 @@ Some random coding experiments that i have done while i was learning programming
 **Python**
 - App Launcher
 - [Mouse Jiggler](python/mouse_jiggler)
-- Discord Rich Presence
+- OBS Score Updater
+- [Discord Rich Presence](python/discord_rp)
 
 **C++**
 - GitHub Releases Downloader
@@ -15,7 +16,6 @@ Some random coding experiments that i have done while i was learning programming
 **Batch**
 - [Python Compiler](batch/py_compiler)
 - Create Symbolic Links
-- Check LAN and WAN IPs
 - [File Modified Checker](batch/mod_checker)
 - Clear Icon Cache
 
@@ -26,5 +26,6 @@ Some random coding experiments that i have done while i was learning programming
 **PowerShell**
 - [Referenced PK3 lists](powershell/ref_autolist)
 - Get Screen Info
+- Check LAN & WAN Info
 
 > Some of the code in this repository has been based on other code i have found in documentation or forum threads from internet sites like StackOverflow or Google.
