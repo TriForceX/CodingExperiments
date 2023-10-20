@@ -8,7 +8,7 @@ Some random coding experiments that i have done while i was learning programming
 - Discord Rich Presence
 
 **Batch:**
-- Python Compiler
+- [Python Compiler](python/py_compiler)
 - Create Symbolic Links
 - Check LAN and WAN IPs
 - File Version Checker
