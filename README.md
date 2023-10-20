@@ -10,12 +10,13 @@ Some random coding experiments that i have done while i was learning programming
 **C++**
 - GitHub Releases Downloader
 - [Jedi Knight Plus Launcher](cpp/jkplus_launcher)
+- Quake III Command Simulation
 
 **Batch**
 - [Python Compiler](batch/py_compiler)
 - Create Symbolic Links
 - Check LAN and WAN IPs
-- File Version Checker
+- [File Modified Checker](batch/mod_checker)
 - Clear Icon Cache
 
 **Bash**
