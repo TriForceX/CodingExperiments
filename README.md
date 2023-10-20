@@ -4,7 +4,7 @@ Some random coding experiments that i have done while i was learning programming
 
 **Python:**
 - App Launcher
-- Mouse Jiggler
+- [Mouse Jiggler](python/mouse_jiggler)
 - Discord Rich Presence
 
 **Batch:**
