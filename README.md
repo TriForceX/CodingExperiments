@@ -22,6 +22,7 @@ Some random coding experiments that i have done while i was learning programming
 **Bash**
 - Screen Resolution Changer
 - Direct URL Downloader
+- Raspberry Pi System Info
 
 **PowerShell**
 - [Referenced PK3 lists](powershell/ref_autolist)
