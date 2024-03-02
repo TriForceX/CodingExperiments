@@ -3,7 +3,7 @@
 Some random coding experiments that i have done while i was learning programming languages.
 
 **Python**
-- App Launcher
+- [App Launcher](python/app_launcher)
 - [Mouse Jiggler](python/mouse_jiggler)
 - OBS Score Updater
 - [Discord Rich Presence](python/discord_rp)

@@ -1,0 +1,45 @@
+{
+	"config" : {
+		"title" : "App Launcher",
+		"description" : "Select an option from the list",
+		"minimizeConsole" : true,
+		"closeOnLaunch" : false
+	},
+	"executables" : [
+		{
+			"name" : "My Exe App",
+			"target" : "C:\\Folder\\application.exe",
+			"params" : false
+		},
+		{
+			"name" : "My Bat App",
+			"target" : "C:\\Folder\\application.bat",
+			"params" : false
+		},
+		{
+			"name" : "My Standalone Game",
+			"target" : "C:\\Folder\\game.exe",
+			"params" : "+exec example; set example 123"
+		},
+		{
+			"name" : "My Steam Game",
+			"target" : "steam://rungameid/0000",
+			"params" : "-example +example 123"
+		},
+		{
+			"name" : "My Steam Game (Launch Option)",
+			"target" : "steam://launch/0000/option/1",
+			"params" : false
+		},
+		{
+			"name" : "My Folder",
+			"target" : "C:\\Users\\MyUser\\Documents",
+			"params" : false
+		},
+		{
+			"name" : "My Website",
+			"target" : "https://github.com/TriForceX",
+			"params" : "?example=true"
+		}
+	]
+}
