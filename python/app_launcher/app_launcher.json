@@ -28,7 +28,7 @@
 		},
 		{
 			"name" : "My Steam Game (Launch Option)",
-			"target" : "steam://launch/0000/option/1",
+			"target" : "steam://launch/0000/option/0",
 			"params" : false
 		},
 		{

@@ -12,12 +12,12 @@ try:
     file_base = os.path.basename(sys.argv[0])
 
     if (os.path.exists(file_custom)):
-        file = os.path.splitext(file_custom)
+        file_name = file_custom
     elif (os.path.exists(file_base)):
-        file = os.path.splitext(file_base)
+        file_name = os.path.splitext(file_base)[0]+".json"
 
     # Open & load JSON
-    json_file = open(f"{file[0]}.json")
+    json_file = open(f"{file_name}")
     json_data = json.load(json_file)
     config = json_data["config"];
     executables = json_data["executables"];
@@ -30,7 +30,7 @@ try:
     os.system(f"title {config["title"]} - Console")
 
     # Show hide windows
-    def sw_trigger(window, action):
+    def on_window(window, action):
         if (action == "minimize"):
             ctypes.windll.user32.ShowWindow(window, 6)
         else:
@@ -62,13 +62,13 @@ try:
         if (config["closeOnLaunch"]):
             quit()
         else:
-            sw_trigger(ctypes.windll.user32.FindWindowW(None, config["title"]), "minimize")
+            on_window(ctypes.windll.user32.FindWindowW(None, config["title"]), "minimize")
 
     # Main frame and labels
     frame = tk.Frame()
     frame.pack(padx=15, pady=15)
 
-    label_title = tk.Label(master=frame, text=f"{config["title"]}", font=('Helvetica', 14, 'bold'))
+    label_title = tk.Label(master=frame, text=f"{config["title"]}", font=("Helvetica", 14, "bold"))
     label_title.pack()
     
     label_desc = tk.Label(master=frame, text=f"{config["description"]}")
@@ -81,7 +81,7 @@ try:
 
     # Minimize console
     if (config["minimizeConsole"]):
-        sw_trigger(ctypes.windll.kernel32.GetConsoleWindow(), "minimize")
+        on_window(ctypes.windll.kernel32.GetConsoleWindow(), "minimize")
 
     # Console info
     print(f"{config["title"]}\n{'-' * len(config["title"])}")
@@ -100,6 +100,6 @@ except Exception as e:
     # Show error
     error_title = "Unable to execute the program"
     print(f"{error_title}\n{'-' * len(error_title)}")
-    print(f"{e}\n")
+    print(f"{e}")
     print("Press any key to continue...")
     keyboard.read_key()
