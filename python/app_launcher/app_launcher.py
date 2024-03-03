@@ -3,6 +3,7 @@ import tkinter as tk
 import json
 import sys
 import os
+import time
 import ctypes
 import keyboard
 
@@ -44,12 +45,14 @@ try:
         if not ext:
             binary = False
             path = target
+        if not path:
+            path = False
         if not isinstance(params, str):
             params = ''
             
-        print(f"\nExecutable: {binary}")
-        print(f"Path: {path}")
-        print(f"Params: {params if params else False}")
+        print(f'\nExecutable: {binary}')
+        print(f'Path: {path}')
+        print(f'Params: {params if params else False}')
         
         if ("steam://" in target):
             os.system(f'start "" "{target}{'//'+params if params else ''}"')
@@ -61,45 +64,61 @@ try:
             os.system(f'start "" "{target}" {params}')
         if (config["closeOnLaunch"]):
             quit()
-        else:
+        elif not target == file_name:
             on_window(ctypes.windll.user32.FindWindowW(None, config["title"]), "minimize")
+    
+    # Reload app function
+    def on_reload():
+        print(f'\nReloading {file_base} ...')
+        time.sleep(1)
+        os.system("cls")
+        python = sys.executable
+        os.execl(python, python, * sys.argv)
 
     # Main frame and labels
     frame = tk.Frame()
-    frame.pack(padx=15, pady=15)
+    frame.pack(padx=15, pady=15, fill="x")
 
-    label_title = tk.Label(master=frame, text=f"{config["title"]}", font=("Helvetica", 14, "bold"))
+    label_title = tk.Label(master=frame, text=f'{config["title"]}', font=("Helvetica", 14, "bold"))
     label_title.pack()
     
-    label_desc = tk.Label(master=frame, text=f"{config["description"]}")
+    label_desc = tk.Label(master=frame, text=f'{config["description"]}')
     label_desc.pack()
 
     # Show buttons
     for val in executables:
-        button_launch=tk.Button(master=frame, text=val["name"], command=lambda target=val["target"], params=val["params"]:on_launch(target, params))
+        button_launch=tk.Button(master=frame, text=val["name"], cursor="hand2", command=lambda target=val["target"], params=val["params"]:on_launch(target, params))
         button_launch.pack(pady=(5, 0), fill="x")
+    
+    # Edit data button
+    button_launch=tk.Button(master=frame, text="Edit", cursor="hand2", width=5, command=lambda target=file_name, params=False:on_launch(target, params))
+    button_launch.pack(side="left", padx=(0, 5/2), pady=(5, 0), fill="x")
+    
+    # Reload app button
+    button_launch=tk.Button(master=frame, text="Reload", cursor="hand2", width=5, command=on_reload)
+    button_launch.pack(side="right", padx=(5/2, 0), pady=(5, 0), fill="x")
 
     # Minimize console
     if (config["minimizeConsole"]):
         on_window(ctypes.windll.kernel32.GetConsoleWindow(), "minimize")
 
     # Console info
-    print(f"{config["title"]}\n{'-' * len(config["title"])}")
-    print(f"Total: {len(executables)} buttons")
-    print(f"minimizeConsole: {config["minimizeConsole"]}")
-    print(f"closeOnLaunch: {config["closeOnLaunch"]}")
+    print(f'{config["title"]}\n{"-" * len(config["title"])}')
+    print(f'Total: {len(executables)} buttons')
+    print(f'minimizeConsole: {config["minimizeConsole"]}')
+    print(f'closeOnLaunch: {config["closeOnLaunch"]}')
 
     # Close JSON file
     json_file.close()
 
     # Run app
-    window.eval('tk::PlaceWindow . center')
+    window.eval("tk::PlaceWindow . center")
     window.mainloop()
     
 except Exception as e:
     # Show error
     error_title = "Unable to execute the program"
-    print(f"{error_title}\n{'-' * len(error_title)}")
-    print(f"{e}")
+    print(f'{error_title}\n{"-" * len(error_title)}')
+    print(f'{e}')
     print("Press any key to continue...")
     keyboard.read_key()
