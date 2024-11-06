@@ -28,5 +28,6 @@ Some random coding experiments that i have done while i was learning programming
 - [Referenced PK3 lists](powershell/ref_autolist)
 - Get Screen Info
 - Check LAN & WAN Info
+- [Dynamic DNS Update](powershell/update_ddns)
 
 > Some of the code in this repository has been based on other code i have found in documentation or forum threads from internet sites like StackOverflow or Google.
