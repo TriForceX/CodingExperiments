@@ -22,6 +22,7 @@ Some random coding experiments that i have done while i was learning programming
 **Bash**
 - Screen Resolution Changer
 - Direct URL Downloader
+- [Git deploy to FTP](bash/git_deploy)
 - Raspberry Pi System Info
 
 **PowerShell**
