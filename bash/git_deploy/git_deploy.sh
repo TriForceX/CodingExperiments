@@ -8,6 +8,7 @@ PASS='userpassword'
 ENCODED_PASS=true
 SSL_VERIFY=false
 REMOTE_DIR='/'
+IGNORED_FILES=(".git" ".gitignore" ".gitftp" "*.log" "*.code-workspace" "node_modules" ".vs")
 
 # Start program
 echo "Starting FTP Upload to: $HOST"
@@ -26,13 +27,13 @@ if [ "$ENCODED_PASS" = true ]; then
 fi
 
 # Determine SSL setting
-SSL_OPTION=""
-if [ "$SSL_VERIFY" = false ]; then
+if [ "$SSL_VERIFY" = true ]; then
+	SSL_OPTION="set ssl:verify-certificate yes"
+else
 	SSL_OPTION="set ssl:verify-certificate no"
 fi
 
-# Get the list of ignored, changed, and deleted files based on user input
-IGNORED_FILES=(".vs" ".git" ".gitignore" "*.log" "*.code-workspace" "node_modules")
+# Get the list changed, and deleted files based on user input
 CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT HEAD~$COMMIT_COUNT HEAD)
 DELETED_FILES=$(git diff --name-only --diff-filter=D HEAD~$COMMIT_COUNT HEAD)
 
@@ -99,6 +100,8 @@ echo -e "\nPress Enter to continue or Ctrl + C to cancel..."
 read
 
 # Upload changed files to FTP
+LFTP_UPLOAD_CMDS="$SSL_OPTION; open $HOST; user $USER $PASS"
+
 for FILE in $CHANGED_FILES; do
 	# Skip ignored files
 	if is_ignored "$FILE"; then
@@ -113,21 +116,19 @@ for FILE in $CHANGED_FILES; do
 		# Get remote directory path
 		REMOTE_PATH=$(dirname "$FILE")
 
-		# Use lftp to upload the changed file to the FTP server
-		$FTP_CMD -e "
-		$SSL_OPTION
-		open $HOST
-		user $USER $PASS
-		$( [ "$REMOTE_PATH" != "." ] && echo "cls -d $REMOTE_DIR$REMOTE_PATH || mkdir -p $REMOTE_DIR$REMOTE_PATH" )
-		put $FILE -o $REMOTE_DIR$FILE
-		bye
-		" -u $USER,$PASS
+		# Update lftp to upload the changed file to the FTP server
+		LFTP_UPLOAD_CMDS="$LFTP_UPLOAD_CMDS; $( [ "$REMOTE_PATH" != "." ] && echo "cls -d $REMOTE_DIR$REMOTE_PATH || mkdir -p $REMOTE_DIR$REMOTE_PATH" ); put $FILE -o $REMOTE_DIR$FILE"
 
 		((UPDATED_COUNT++))
 	fi
 done
 
+LFTP_UPLOAD_CMDS="$LFTP_UPLOAD_CMDS; bye"
+$FTP_CMD -e "$LFTP_UPLOAD_CMDS" -u $USER,$PASS
+
 # Delete removed files from FTP
+LFTP_DELETE_CMDS="$SSL_OPTION; open $HOST; user $USER $PASS"
+
 for FILE in $DELETED_FILES; do
 	if is_ignored "$FILE"; then
 		echo "Skipping deletion: $FILE"
@@ -149,17 +150,14 @@ for FILE in $DELETED_FILES; do
 		done
 	fi
 
-	$FTP_CMD -e "
-	$SSL_OPTION
-	open $HOST
-	user $USER $PASS
-	rm $REMOTE_DIR$FILE
-	$CLEAN_CMDS
-	bye
-	" -u $USER,$PASS
+	# Update lftp to delete the changed file to the FTP server
+	LFTP_DELETE_CMDS="$LFTP_DELETE_CMDS; rm $REMOTE_DIR$FILE; $CLEAN_CMDS"
 
 	((DELETED_COUNT++))
 done
+
+LFTP_DELETE_CMDS="$LFTP_DELETE_CMDS; bye"
+$FTP_CMD -e "$LFTP_DELETE_CMDS" -u $USER,$PASS
 
 # Display total counts and finish program
 echo -e "\nSuccessfully Updated: $UPDATED_COUNT Files, Deleted: $DELETED_COUNT Files."
