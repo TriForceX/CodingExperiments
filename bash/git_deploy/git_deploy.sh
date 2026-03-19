@@ -58,10 +58,17 @@ is_ignored() {
 }
 
 # Display the files that will be updated
+HAS_INVALID=false
 HAS_UPLOADS=false
 HAS_UPLOADS_NUM=1
 
-for FILE in $CHANGED_FILES; do
+while IFS= read -r FILE; do
+	[ -z "$FILE" ] && continue
+	# Check invalid files
+	if [[ ! "$FILE" =~ ^[a-zA-Z0-9._/\ -]+$ ]]; then
+		HAS_INVALID=true
+	fi
+	# Skip ignored files
 	if ! is_ignored "$FILE"; then
 		if [ "$HAS_UPLOADS" = false ]; then
 			echo "Files to be uploaded:"
@@ -70,13 +77,19 @@ for FILE in $CHANGED_FILES; do
 		echo "$HAS_UPLOADS_NUM) $FILE"
 		((HAS_UPLOADS_NUM++))
 	fi
-done
+done <<< "$CHANGED_FILES"
 
 # Display the files that will be deleted
 HAS_DELETES=false
 HAS_DELETES_NUM=1
 
-for FILE in $DELETED_FILES; do
+while IFS= read -r FILE; do
+	[ -z "$FILE" ] && continue
+	# Check invalid files
+	if [[ ! "$FILE" =~ ^[a-zA-Z0-9._/\ -]+$ ]]; then
+		HAS_INVALID=true
+	fi
+	# Skip ignored files
 	if ! is_ignored "$FILE"; then
 		if [ "$HAS_DELETES" = false ]; then
 			if [ "$HAS_UPLOADS" = true ]; then
@@ -88,11 +101,18 @@ for FILE in $DELETED_FILES; do
 		echo "$HAS_DELETES_NUM) $FILE"
 		((HAS_DELETES_NUM++))
 	fi
-done
+done <<< "$DELETED_FILES"
 
 # Display note for not uploaded or delete
 if [ "$HAS_UPLOADS" = false ] && [ "$HAS_DELETES" = false ]; then
 	echo "No files to upload or delete."
+fi
+
+# Display note for invalid file names
+if [ "$HAS_INVALID" = true ]; then
+	echo -e "\nError: Detected invalid characters in file names. Please rename them..."
+	read
+	exit 1
 fi
 
 # Prompt user for confirmation
@@ -102,7 +122,9 @@ read
 # Upload changed files to FTP
 LFTP_UPLOAD_CMDS="$SSL_OPTION; open $HOST; user $USER $PASS"
 
-for FILE in $CHANGED_FILES; do
+while IFS= read -r FILE; do
+	[ -z "$FILE" ] && continue
+	
 	# Skip ignored files
 	if is_ignored "$FILE"; then
 		echo "Skipping: $FILE"
@@ -117,11 +139,11 @@ for FILE in $CHANGED_FILES; do
 		REMOTE_PATH=$(dirname "$FILE")
 
 		# Update lftp to upload the changed file to the FTP server
-		LFTP_UPLOAD_CMDS="$LFTP_UPLOAD_CMDS; $( [ "$REMOTE_PATH" != "." ] && echo "cls -d $REMOTE_DIR$REMOTE_PATH || mkdir -p $REMOTE_DIR$REMOTE_PATH" ); put $FILE -o $REMOTE_DIR$FILE"
+		LFTP_UPLOAD_CMDS="$LFTP_UPLOAD_CMDS; $( [ "$REMOTE_PATH" != "." ] && echo "cls -d \"$REMOTE_DIR$REMOTE_PATH\" || mkdir -p \"$REMOTE_DIR$REMOTE_PATH\"" ); put \"$FILE\" -o \"$REMOTE_DIR$FILE\""
 
 		((UPDATED_COUNT++))
 	fi
-done
+done <<< "$CHANGED_FILES"
 
 LFTP_UPLOAD_CMDS="$LFTP_UPLOAD_CMDS; bye"
 $FTP_CMD -e "$LFTP_UPLOAD_CMDS" -u $USER,$PASS
@@ -129,7 +151,10 @@ $FTP_CMD -e "$LFTP_UPLOAD_CMDS" -u $USER,$PASS
 # Delete removed files from FTP
 LFTP_DELETE_CMDS="$SSL_OPTION; open $HOST; user $USER $PASS"
 
-for FILE in $DELETED_FILES; do
+while IFS= read -r FILE; do
+	[ -z "$FILE" ] && continue
+
+	# Skip ignored files
 	if is_ignored "$FILE"; then
 		echo "Skipping deletion: $FILE"
 		continue
@@ -145,16 +170,16 @@ for FILE in $DELETED_FILES; do
 	if [ "$REMOTE_PATH" != "." ]; then
 		CURRENT_PATH="$REMOTE_PATH"
 		while [ "$CURRENT_PATH" != "." ]; do
-			CLEAN_CMDS="$CLEAN_CMDS rmdir $REMOTE_DIR$CURRENT_PATH;"
+			CLEAN_CMDS="$CLEAN_CMDS rmdir \"$REMOTE_DIR$CURRENT_PATH\";"
 			CURRENT_PATH=$(dirname "$CURRENT_PATH")
 		done
 	fi
 
 	# Update lftp to delete the changed file to the FTP server
-	LFTP_DELETE_CMDS="$LFTP_DELETE_CMDS; rm $REMOTE_DIR$FILE; $CLEAN_CMDS"
+	LFTP_DELETE_CMDS="$LFTP_DELETE_CMDS; rm \"$REMOTE_DIR$FILE\"; $CLEAN_CMDS"
 
 	((DELETED_COUNT++))
-done
+done <<< "$DELETED_FILES"
 
 LFTP_DELETE_CMDS="$LFTP_DELETE_CMDS; bye"
 $FTP_CMD -e "$LFTP_DELETE_CMDS" -u $USER,$PASS
