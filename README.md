@@ -3,8 +3,7 @@
 Some random coding experiments that i have done while i was learning programming languages.
 
 **AutoHotKey**
-- App Launcher
-- Mouse Jiggler
+- [App Launcher](ahk/app_launcher)
 - Google Translator
 - [Toggle Microphone](ahk/toggle_mic)
 
