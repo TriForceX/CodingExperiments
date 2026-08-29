@@ -2,6 +2,12 @@
 
 Some random coding experiments that i have done while i was learning programming languages.
 
+**AutoHotKey**
+- App Launcher
+- Mouse Jiggler
+- Google Translator
+- [Toggle Microphone](ahk/toggle_mic)
+
 **Python**
 - [App Launcher](python/app_launcher)
 - [Mouse Jiggler](python/mouse_jiggler)
